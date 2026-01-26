@@ -1,7 +1,11 @@
 # Originator
 class Document(): 
-    def __init__(self):
+    FONTS = ['Arial', 'Georgia', 'Calibri']
+
+    def __init__(self, fontName='Arial', fontSize=12):
         self._content = ""
+        self.fontName = fontName
+        self.fontSize = fontSize
         self._history = History()
 
     def _create_state(self):
@@ -33,8 +37,11 @@ class Document():
         
         self._set_content_from_history(prev)
 
+    def change_font(self, fontName): 
+        self.fontName = fontName 
+
     def __str__(self): 
-        return self._content
+        return f"{self._content}, {self.fontName}, {self.fontSize}"
 
     
 
@@ -58,8 +65,10 @@ class History():
 
 # Memento 
 class DocumentState(): 
-    def __init__(self, content): 
+    def __init__(self, content, fontName='Arial', fontSize=12): 
         self.content = content
+        self.fontName = fontName 
+        self.fontSize = fontSize
 
 
 def main(): 
@@ -73,11 +82,14 @@ def main():
     document.delete_last(1)
     print(document)          # Hello CSC7302
 
+    document.change_font('Georgia')
+
     document.insert("!!!")
     print(document)          # Hello CSC7302!!!
 
     document.undo()
     print(document)          # Hello CSC7302
+
 
     document.undo()
     print(document)          # Hello CSC7302!
