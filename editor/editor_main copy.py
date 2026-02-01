@@ -1,8 +1,3 @@
-# I learned that this module helps with type checking; otherwise I was getting errors when 
-# I mentioned the DocumentState class as an argument or return value
-
-from __future__ import annotations
-
 # Originator
 class Document(): 
     # I'm not sure if it's good practice to include 
@@ -19,22 +14,22 @@ class Document():
     def _create_state(self):
         return DocumentState(self._content, self._fontName, self._fontSize)
     
-    # Apparently the content of state needs to be public since we are using it in a different class 
-    def _set_content_from_history(self, state: DocumentState):
-        self._content: str = state.content
-        self._fontName: str = state.fontName
-        self._fontSize: int = state.fontSize
+    # I need to make this extensible 
+    def _set_content_from_history(self, state): 
+        self._content = state._content
+        self._fontName = state._fontName
+        self._fontSize = state._fontSize
 
     def _save_history_before_change(self): 
         self._history.push(self._create_state())
 
     # Now we can do the public methods 
 
-    def insert(self, text: str): 
+    def insert(self, text): 
         self._save_history_before_change()
         self._content += text
 
-    def delete_last(self, n: int):
+    def delete_last(self, n):
         if n <= 0: 
             raise ValueError("n must be positive")
         self._save_history_before_change()
@@ -53,11 +48,11 @@ class Document():
         
         self._set_content_from_history(prev)
 
-    def change_font(self, _fontName: str): 
+    def change_font(self, _fontName): 
         self._save_history_before_change()
         self._fontName = _fontName 
 
-    def change_font_size(self, _fontSize: int): 
+    def change_font_size(self, _fontSize): 
         self._save_history_before_change()
         self._fontSize = _fontSize
 
@@ -69,27 +64,31 @@ class Document():
 # Caretaker
 class History(): 
     def __init__(self): 
-        self._states: list[DocumentState] = []
+        self._states = []
 
     # This method is public because another class (Document)
     # needs to know it
-    def push(self, state: DocumentState): 
+    def push(self, state): 
         self._states.append(state)
 
-    def pop(self) -> DocumentState | None: 
+    def pop(self):
         if len(self._states) == 0:
             return None
         return self._states.pop()
     
     def __len__(self):
         return len(self._states) 
+    
+    # I'm making this to help debug my undo method
+    def __repr__(self):
+        return self._states
 
 # Memento 
 class DocumentState(): 
-    def __init__(self, content: str, fontName: str, fontSize: int): 
-        self.content = content
-        self.fontName = fontName 
-        self.fontSize = fontSize
+    def __init__(self, _content, _fontName, _fontSize): 
+        self._content = _content
+        self._fontName = _fontName 
+        self._fontSize = _fontSize
 
     # This is also part of my debugging for my undo method 
     # If I don't add this, it will show useless memory location of DocumentState objects in the 
@@ -97,7 +96,7 @@ class DocumentState():
 
     def __repr__(self): 
         # Adding angle brackets to help parse the states in the History() list 
-        return f"<{self.content}, {self.fontName}, {self.fontSize}>\n"
+        return f"<{self._content}, {self._fontName}, {self._fontSize}>\n"
 
 
 
@@ -139,7 +138,7 @@ def main():
 
     document.undo()
     print(document)
-    # print(document._history._states)
+    print(document._history._states)
 
     document.change_font('Calibri')
     print(document)
