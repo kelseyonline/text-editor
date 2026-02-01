@@ -1,0 +1,46 @@
+@startuml editor
+
+title EDITOR
+
+' ---- Layout & style helpers ----
+' left to right direction
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+
+
+class Document {  
+    -_content : str 
+    -_fontName : str 
+    -_fontSize : int 
+    -_history : History
+
+    -_create_state() : DocumentState
+    -_set_content_from_history(state : DocumentState)
+    -_save_history_before_change()
+    +insert(text : str)
+    +delete_last(n : int)
+    +undo()
+    +change_font(_fontName : str)
+    +change_font_size(_fontSize : int)
+    +__str__() : str
+}
+
+Document ..> DocumentState
+
+class History {
+    -_history : List<DocumentState>
+    +push(state : DocumentState) : void
+    +pop() : DocumentState 
+    +__len__() : int
+}
+
+History -* Document
+
+class DocumentState {
+    +content : str
+    +fontName : str
+    +fontSize : int
+}
+
+DocumentState -* History

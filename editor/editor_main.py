@@ -54,4 +54,5 @@ def main():
     document.undo()
     print(document)
 
-main()
+if __name__ == "__main__":
+    main()
