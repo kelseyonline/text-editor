@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 from document import Document
-from history import History 
-from document_state import DocumentState
 
 def main(): 
     document = Document()

@@ -1,4 +1,6 @@
 from __future__ import annotations
+from history import History 
+from document_state import DocumentState
 
 # Originator
 class Document(): 

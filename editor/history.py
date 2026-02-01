@@ -1,4 +1,5 @@
 from __future__ import annotations
+from document_state import DocumentState
 
 # Caretaker
 class History(): 
