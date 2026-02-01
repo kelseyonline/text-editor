@@ -1,18 +1,23 @@
 # Originator
 class Document(): 
+    # I'm not sure if it's good practice to include 
+    # constants within a class 
     FONTS = ['Arial', 'Georgia', 'Calibri']
 
-    def __init__(self, fontName='Arial', fontSize=12):
+    # I will initialize it with default values 
+    def __init__(self):
         self._content = ""
-        self.fontName = fontName
-        self.fontSize = fontSize
+        self._fontName = 'Arial'
+        self._fontSize = 12
         self._history = History()
 
     def _create_state(self):
-        return DocumentState(self._content)
+        return DocumentState(self._content, self._fontName, self._fontSize)
     
     def _set_content_from_history(self, state): 
-        self._content = state.content
+        self._content = state._content
+        self._fontName = state._fontName
+        self._fontSize = state._fontSize
 
     def _save_history_before_change(self): 
         self._history.push(self._create_state())
@@ -29,19 +34,29 @@ class Document():
         self._save_history_before_change()
         self._content = self._content[:-n] if n <= len(self._content) else ""
 
+    # This method is our primary highlight for this task 
+
     def undo(self): 
         prev = self._history.pop()
+
+        # Can comment out after troubleshooting
+        print(f"Prev is {prev}")
 
         if prev is None: 
             return None
         
         self._set_content_from_history(prev)
 
-    def change_font(self, fontName): 
-        self.fontName = fontName 
+    def change_font(self, _fontName): 
+        self._save_history_before_change()
+        self._fontName = _fontName 
+
+    def change_font_size(self, _fontSize): 
+        self._save_history_before_change()
+        self._fontSize = _fontSize
 
     def __str__(self): 
-        return f"{self._content}, {self.fontName}, {self.fontSize}"
+        return f"{self._content}, {self._fontName}, {self._fontSize}"
 
     
 
@@ -62,13 +77,26 @@ class History():
     
     def __len__(self):
         return len(self._states) 
+    
+    # I'm making this to help troubleshoot my undo method
+    def __repr__(self):
+        return self._states
 
 # Memento 
 class DocumentState(): 
-    def __init__(self, content, fontName='Arial', fontSize=12): 
-        self.content = content
-        self.fontName = fontName 
-        self.fontSize = fontSize
+    def __init__(self, _content, _fontName, _fontSize): 
+        self._content = _content
+        self._fontName = _fontName 
+        self._fontSize = _fontSize
+
+    # This is also part of my troubleshooting for my undo method 
+    # If I don't add this, it will show useless memory location of DocumentState objects in the 
+    # History() class
+
+    def __repr__(self): 
+        # Adding angle brackets to help parse the states in the History() list 
+        return f"<{self._content}, {self._fontName}, {self._fontSize}>\n"
+
 
 
 def main(): 
@@ -78,11 +106,24 @@ def main():
     document.insert(" CSC7302")
     document.insert("!")
     print(document)          # Hello CSC7302!
+    # print(document._history._states)
 
     document.delete_last(1)
     print(document)          # Hello CSC7302
+    # print(document._history._states)
 
     document.change_font('Georgia')
+    print(document)
+    # print(document._history._states)
+
+    document.change_font_size(20)
+    print(document)
+    # print(document._history._states)
+
+    # This is where we are testing the undo for font
+    document.undo()         # Should be Hello CS7302, Georgia, 12. And it works now! 
+    # print(document._history._states)
+    print(document)
 
     document.insert("!!!")
     print(document)          # Hello CSC7302!!!
@@ -90,14 +131,13 @@ def main():
     document.undo()
     print(document)          # Hello CSC7302
 
+    document.undo()
+    print(document)
 
     document.undo()
-    print(document)          # Hello CSC7302!
+    print(document)
 
     document.undo()
-    print(document)          # Hello CSC7302
-
-    document.undo()
-    print(document)          # Hello
+    print(document)
 
 main()
