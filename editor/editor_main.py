@@ -14,6 +14,7 @@ class Document():
     def _create_state(self):
         return DocumentState(self._content, self._fontName, self._fontSize)
     
+    # I need to make this extensible 
     def _set_content_from_history(self, state): 
         self._content = state._content
         self._fontName = state._fontName
@@ -39,8 +40,8 @@ class Document():
     def undo(self): 
         prev = self._history.pop()
 
-        # Can comment out after troubleshooting
-        print(f"Prev is {prev}")
+        # Can comment out after debugging
+        # print(f"Prev is {prev}")
 
         if prev is None: 
             return None
@@ -78,7 +79,7 @@ class History():
     def __len__(self):
         return len(self._states) 
     
-    # I'm making this to help troubleshoot my undo method
+    # I'm making this to help debug my undo method
     def __repr__(self):
         return self._states
 
@@ -89,7 +90,7 @@ class DocumentState():
         self._fontName = _fontName 
         self._fontSize = _fontSize
 
-    # This is also part of my troubleshooting for my undo method 
+    # This is also part of my debugging for my undo method 
     # If I don't add this, it will show useless memory location of DocumentState objects in the 
     # History() class
 
@@ -131,7 +132,15 @@ def main():
     document.undo()
     print(document)          # Hello CSC7302
 
+    document.change_font_size(30)
+    print(document)
+    # print(document._history._states)
+
     document.undo()
+    print(document)
+    print(document._history._states)
+
+    document.change_font('Calibri')
     print(document)
 
     document.undo()
