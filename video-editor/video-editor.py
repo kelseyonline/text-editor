@@ -1,3 +1,18 @@
+from abc import ABC, abstractmethod
+
+# === Abstract Commands === 
+class Command(ABC): 
+    @abstractmethod 
+    def execute(self): 
+        pass
+
+class UndoableCommand(Command): 
+    @abstractmethod
+    def unexecute(self): 
+        pass
+
+# === Receiver === 
+
 class VideoEditor: 
     def __init__(self) -> None: 
         self._contrast = 0.5
@@ -17,6 +32,32 @@ class VideoEditor:
 
     def __str__(self) -> str: 
         return f"VideoEditor(contrast={self._contrast}, text={self._text!r})"
+    
+class History(): 
+    def __init__(self):
+        # This is where we keep a running list of all (undoable) commands we've run
+        self._commands: list[UndoableCommand] = []
+
+    # Now build it out like a regular stack 
+    def push(self, command):
+        self._commands.append(command)
+
+    def pop(self):
+        return self._commands.pop()
+    
+    # This is important to prevent crashing when undoing 
+    def __len__(self): 
+        return len(self._commands)
+
+# === Concrete Commands === 
+class SetTextCommand():
+    ...
+
+class RemoveTextCommand(): 
+    ...
+
+class UndoCommand(): 
+    ...
     
 def main(): 
     editor = VideoEditor()
