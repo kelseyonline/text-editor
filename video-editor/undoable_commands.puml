@@ -1,0 +1,55 @@
+@startuml undoable_commands
+skinparam classAttributeIconSize 0
+left to right direction
+skinparam linetype ortho
+
+
+' ===== Interfaces =====
+interface Command {
+  +execute(): void
+}
+
+interface UndoableCommand {
+  +execute(): void
+  +unexecute(): void
+}
+
+UndoableCommand ..|> Command
+
+' ===== Receiver =====
+class HtmlDocument {
+  -_content: str
+  +make_bold(): void
+}
+
+' ===== History (stack) =====
+class History {
+  -_commands: List<UndoableCommand>
+  +push(command: UndoableCommand): void
+  +pop(): UndoableCommand
+}
+
+History o-- "0..*" UndoableCommand : stores
+
+' ===== Concrete Commands =====
+class BoldCommand {
+  -_document: HtmlDocument
+  -_history: History
+  -_prev_content: str
+  +execute(): void
+  +unexecute(): void
+}
+
+class UndoCommand {
+  -_history: History
+  +execute(): void
+}
+
+BoldCommand ..|> UndoableCommand
+UndoCommand ..|> Command
+
+BoldCommand --> HtmlDocument : receiver
+BoldCommand --> History : pushes self
+UndoCommand --> History : pops last
+
+@enduml

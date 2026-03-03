@@ -1,0 +1,84 @@
+@startuml video-editor
+skinparam classAttributeIconSize 0
+left to right direction
+skinparam linetype ortho
+
+
+' ===== Interfaces =====
+interface Command {
+  +execute(): void
+}
+
+interface UndoableCommand {
+  +execute(): void
+  +unexecute(): void
+}
+
+UndoableCommand ..|> Command
+
+' ===== Receiver =====
+class VideoEditor {
+  -_contrast: float
+  -_text: str
+  +set_text(): void
+  +remove_text(): void
+  +get_contrast(): float
+  +set_contrast(): void
+  +__str__(): str
+}
+
+' ===== History (stack) =====
+class History {
+  -_commands: List<UndoableCommand>
+  +push(command: UndoableCommand): void
+  +pop(): UndoableCommand
+}
+
+History o-- "0..*" UndoableCommand : stores
+
+' ===== Concrete Commands =====
+class SetTextCommand {
+  -_editor: VideoEditor
+  -_history: History
+  -_text: str
+  -_prev_text: str
+  +execute(): void
+  +unexecute(): void
+}
+
+class SetContrastCommand {
+  -_editor: VideoEditor
+  -_history: History
+  -_contrast: float
+  -_prev_contrast: float
+  +execute(): void
+  +unexecute(): void
+}
+
+class RemoveTextCommand {
+  -_editor: VideoEditor
+  -_history: History
+  -_prev_text: text
+  +execute(): void
+  +unexecute(): void
+}
+
+class UndoCommand {
+  -_history: History
+  +execute(): void
+}
+
+SetTextCommand ..|> UndoableCommand
+SetContrastCommand ..|> UndoableCommand
+RemoveTextCommand ..|> UndoableCommand
+UndoCommand ..|> Command
+
+SetTextCommand --> VideoEditor : receiver
+SetContrastCommand --> VideoEditor : receiver
+RemoveTextCommand --> VideoEditor : receiver
+SetTextCommand --> History : pushes self
+SetContrastCommand --> History : pushes self
+RemoveTextCommand --> History : pushes self
+UndoCommand --> History : pops last
+
+@enduml
