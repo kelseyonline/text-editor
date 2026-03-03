@@ -50,14 +50,57 @@ class History():
         return len(self._commands)
 
 # === Concrete Commands === 
-class SetTextCommand():
-    ...
+class SetTextCommand(UndoableCommand):
+    def __init__(self, editor, history, text): 
+        self._editor = editor 
+        self._history = history 
+        self._text = text
+        self._prev_text = "" 
 
-class RemoveTextCommand(): 
-    ...
+    def execute(self): 
+        self._prev_text = self._editor._text
+        self._history.push(self)
+        self._editor.set_text(self._text)
 
-class UndoCommand(): 
-    ...
+    def unexecute(self): 
+        self._editor._text = self._editor._prev_text
+
+class SetContrastCommand(UndoableCommand): 
+    def __init__(self, editor, history, contrast): 
+        self._editor = editor 
+        self._history = history 
+        self._contrast = contrast
+        self._prev_contrast = 0
+
+    def execute(self): 
+        self._prev_contrast = self._editor._contrast
+        self._history.push(self)
+        self._editor.set_contrast(self._contrast)
+
+    def unexecute(self): 
+        self._editor._contrast = self._prev_contrast
+
+class RemoveTextCommand(UndoableCommand): 
+    def __init__(self, editor, history): 
+        self._editor = editor 
+        self._history = history 
+        self._prev_text = "" 
+
+    def execute(self): 
+        self._prev_text = self._editor._text
+        self._history.push(self)
+        self._editor.remove_text()
+
+    def unexecute(self): 
+        self._editor._text = self._prev_text
+
+class UndoCommand(Command): 
+    def __init__(self, history): # This class does not know VideoEditor
+        self._history = history
+		
+    def execute(self):
+        if len(self._history) > 0: # Prevents crash on empty list
+            self._history.pop().unexecute()
     
 def main(): 
     editor = VideoEditor()
@@ -80,3 +123,5 @@ def main():
     undo.execute()
 
     print(editor) # Should reflect 2 undos
+
+main()
